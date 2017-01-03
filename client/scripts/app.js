@@ -44,13 +44,16 @@ app.send = function(message) {
   });
 };
 
-app.fetch = function(requestUrl) {
+app.fetch = function(url) {
   $.ajax({
   // This is the url you should use to communicate with the parse API server.
-    url: requestUrl,
+    url: url,
     type: 'GET',
     contentType: 'application/json',
     success: function (data) {
+      _.each(data.results, function(msg) {
+        app.renderMessage(msg);
+      });
       console.log('chatterbox: Message fetched');
     },
     error: function (data) {
@@ -66,7 +69,12 @@ app.clearMessages = function() {
 
 app.renderMessage = function(message) {
   // add user and message field to append
-  $('#chats').append('<p>' + message.text + '</p>');
+  $('#chats').append(
+    '<div class="message">' +
+      '<span class="userName"> @' + message.username + '</span>' +
+      '<span class="msgText">: ' + message.text + '</span>' +
+    '</div>'
+    );
 };
 
 app.renderRoom = function(roomName) {

@@ -1,7 +1,13 @@
 // YOUR CODE HERE:
 var app = {};
 
+app.server = 'https://api.parse.com/1/classes/messages';
+
 app.init = function() {
+  // fetch messages every second
+  // setInterval(function() {
+  //   app.fetch();
+  // }, 1000);
   
   // post message
   var urlUser = window.location.search;
@@ -30,7 +36,7 @@ app.init = function() {
 app.send = function(message) {
   $.ajax({
   // This is the url you should use to communicate with the parse API server.
-    url: 'https://api.parse.com/1/classes/messages',
+    url: app.server,
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
@@ -44,16 +50,34 @@ app.send = function(message) {
   });
 };
 
-app.fetch = function(url) {
+app.fetch = function() {
   $.ajax({
   // This is the url you should use to communicate with the parse API server.
-    url: url,
+    url: app.server,
     type: 'GET',
+    data: 'order=-createdAt',
     contentType: 'application/json',
     success: function (data) {
-      _.each(data.results, function(msg) {
-        app.renderMessage(msg);
-      });
+      // debugger;
+      console.log(data);
+      var firstMessageId = $('#chats .message').first().attr('id');
+      var messages = data.results;
+      // for (var i = messages.length - 1; i >= 0; i--) {
+      var patt = /[&<>"'`@$%()=+{}[\]]/g;
+      for (var i = 0; i < messages.length; i++) {
+        var validateData = function() {
+          return patt.test(messages[i].text) || patt.test(messages[i].username);
+        };
+        if (!validateData && messages[i].objectId !== firstMessageId) {
+          app.renderMessage(messages[i]);
+        } else {
+          console.log(messages[i].text);
+        }
+      }
+      // _.each(data.results, function(msg) {
+        
+        
+      // });
       console.log('chatterbox: Message fetched');
     },
     error: function (data) {
@@ -69,10 +93,11 @@ app.clearMessages = function() {
 
 app.renderMessage = function(message) {
   // add user and message field to append
+  // refactor using .attr
   $('#chats').append(
-    '<div class="message">' +
+    '<div class="message" id="' + message.objectId + '">' +
       '<span class="userName"> @' + message.username + '</span>' +
-      '<span class="msgText">: ' + message.text + '</span>' +
+      '<span class="msgText">: ' + message.text + message.createdAt + '</span>' +
     '</div>'
     );
 };

@@ -10,7 +10,7 @@
     <script src="bower_components/underscore/underscore.js"></script>
     <script>
       // YOU DO NOT NEED TO EDIT THIS CODE
-      if (!/(&|\? )username=/.test(window.location.search)) {
+      if (!/(&|\?)username=/.test(window.location.search)) {
         var newSearch = window.location.search;
         if (newSearch !== '' & newSearch !== '?') {
           newSearch += '&';
@@ -33,7 +33,7 @@
       <!-- <form id="formMessage"> -->
         <!-- method="post"?? -->
         <input id="newMessage" type="text" value="Enter Message">
-        <input id="sendMessage" type="button" value="Send">
+        <input id="sendMessage" class="submit" type="button" value="Send">
         <input id="clearMessages" type="button" value="Clear">
       <!-- </form> -->
       <!-- Your HTML goes here! -->

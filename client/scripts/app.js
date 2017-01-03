@@ -19,7 +19,6 @@ app.init = function() {
       roomname: $('#roomSelect').val()
     };
     app.send(message);
-    app.renderMessage(message);
   });
 
   // clear message
@@ -58,17 +57,22 @@ app.fetch = function() {
     data: 'order=-createdAt',
     contentType: 'application/json',
     success: function (data) {
+      app.clearMessages();
       // debugger;
       console.log(data);
       var firstMessageId = $('#chats .message').first().attr('id');
       var messages = data.results;
       // for (var i = messages.length - 1; i >= 0; i--) {
-      var patt = /[&<>"'`@$%()=+{}[\]]/g;
+      var patt = /[&<>"'`@$%=+{}[\]]/g;
       for (var i = 0; i < messages.length; i++) {
         var validateData = function() {
-          return patt.test(messages[i].text) || patt.test(messages[i].username);
+          // if (patt.test(messages[i].text) || patt.test(messages[i].username)) {
+          //   return false;
+           return patt.test(messages[i].text) || patt.test(messages[i].username);
+          // }
+          // return true;
         };
-        if (!validateData && messages[i].objectId !== firstMessageId) {
+        if (!validateData() && messages[i].objectId !== firstMessageId) {
           app.renderMessage(messages[i]);
         } else {
           console.log(messages[i].text);

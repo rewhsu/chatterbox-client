@@ -2,7 +2,29 @@
 var app = {};
 
 app.init = function() {
+  
+  // post message
+  var urlUser = window.location.search;
+  var userName = urlUser.slice(urlUser.indexOf('=') + 1);
+  $('#sendMessage').on('click', function() {
+    var message = {
+      username: userName,
+      text: $('#newMessage').val(),
+      roomname: $('#roomSelect').val()
+    };
+    app.send(message);
+    app.renderMessage(message);
+  });
 
+  // clear message
+  $('#clearMessages').on('click', function() {
+    app.clearMessages();
+  });
+
+  // fetch messages on room selection
+  $('#roomSelect').change(function() {
+    console.log($('#roomSelect').val());
+  });
 };
 
 app.send = function(message) {
@@ -37,3 +59,20 @@ app.fetch = function(requestUrl) {
     }
   });
 };
+
+app.clearMessages = function() {
+  $('#chats').empty();
+};
+
+app.renderMessage = function(message) {
+  // add user and message field to append
+  $('#chats').append('<p>' + message.text + '</p>');
+};
+
+app.renderRoom = function(roomName) {
+  // consider using .attr() to add value attribute
+  $('#roomSelect').append('<option value="' + roomName + '">' + roomName + '</option>');
+};
+
+$(document).ready(app.init);
+

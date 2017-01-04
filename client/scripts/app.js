@@ -3,6 +3,7 @@ var app = {};
 
 app.server = 'https://api.parse.com/1/classes/messages';
 app.friends = {};
+app.friendCount = 0;
 
 app.init = function() {
   // post message
@@ -25,6 +26,17 @@ app.init = function() {
   // fetch messages on room selection
   $('#roomSelect').change(function() {
     console.log($('#roomSelect').val());
+  });
+
+  // fetch messages on room selection
+  $('#friendSelect').change(function() {
+    var selected = $('#friendSelect').val();
+    if (selected === $('#friendSelect').children().first().val()) {
+      $('.chat').show();
+    } else {
+      $('.chat').hide();
+      $('.' + selected).show();
+    }
   });
 
   // fetch new messages every second
@@ -119,12 +131,21 @@ app.handleUsernameClick = function (event) {
   var friend = event.target.textContent;
   if (!app.friends[friend]) {
     app.friends[friend] = true;
+    app.friendCount ++;
     $('.' + friend).css('font-weight', 'Bold');
+    $('#friendSelect option').first().text(`Friends (${app.friendCount})`);
     $('#friendSelect').append(`<option value="${friend}">${friend}</option>`);
   } else {
     app.friends[friend] = false;
+    app.friendCount --;
     $('.' + friend).css('font-weight', 'Normal');
-    // $('#friendSelect').
+    $('#friendSelect option').first().text(`Friends (${app.friendCount})`);
+    var options = $('#friendSelect option');
+    for (var i = 0; i < options.length; i++) {
+      if (options[i].value === friend) {
+        options[i].remove();
+      }
+    }
   }
 };
 

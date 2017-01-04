@@ -2,13 +2,9 @@
 var app = {};
 
 app.server = 'https://api.parse.com/1/classes/messages';
+app.friends = {};
 
 app.init = function() {
-  // fetch messages every second
-  // setInterval(function() {
-  //   app.fetch();
-  // }, 1000);
-  
   // post message
   var urlUser = window.location.search;
   var userName = urlUser.slice(urlUser.indexOf('=') + 1);
@@ -30,6 +26,21 @@ app.init = function() {
   $('#roomSelect').change(function() {
     console.log($('#roomSelect').val());
   });
+
+  // fetch new messages every second
+  app.fetch();
+  // setInterval(function() {
+  //   app.fetch();
+  // }, 1000);
+};
+
+app.clickHandlers = function () {
+  // add friend
+  setTimeout(function() {
+    $('.username').on('click', function() {
+      app.handleUsernameClick(event);
+    });
+  }, 500);
 };
 
 app.send = function(message) {
@@ -58,30 +69,20 @@ app.fetch = function() {
     contentType: 'application/json',
     success: function (data) {
       app.clearMessages();
-      // debugger;
-      console.log(data);
-      var firstMessageId = $('#chats .message').first().attr('id');
+      var firstMessageId = $('#chats .chat').first().attr('id');
       var messages = data.results;
-      // for (var i = messages.length - 1; i >= 0; i--) {
       var patt = /[&<>"'`@$%=+{}[\]]/g;
       for (var i = 0; i < messages.length; i++) {
         var validateData = function() {
-          // if (patt.test(messages[i].text) || patt.test(messages[i].username)) {
-          //   return false;
-           return patt.test(messages[i].text) || patt.test(messages[i].username);
-          // }
-          // return true;
+          return patt.test(messages[i].text) || patt.test(messages[i].username) || patt.test(messages[i].roomname);
         };
         if (!validateData() && messages[i].objectId !== firstMessageId) {
+          // console.log(messages[i].text);
           app.renderMessage(messages[i]);
         } else {
-          console.log(messages[i].text);
+          // console.error('INVALID INPUT: ', messages[i].text);
         }
       }
-      // _.each(data.results, function(msg) {
-        
-        
-      // });
       console.log('chatterbox: Message fetched');
     },
     error: function (data) {
@@ -89,6 +90,7 @@ app.fetch = function() {
       console.error('chatterbox: Failed to fetch message', data);
     }
   });
+  app.clickHandlers();
 };
 
 app.clearMessages = function() {
@@ -99,16 +101,31 @@ app.renderMessage = function(message) {
   // add user and message field to append
   // refactor using .attr
   $('#chats').append(
-    '<div class="message" id="' + message.objectId + '">' +
-      '<span class="userName"> @' + message.username + '</span>' +
-      '<span class="msgText">: ' + message.text + message.createdAt + '</span>' +
-    '</div>'
+    `<div class="chat ${message.username}" id="${message.objectId}">
+      <span class="username">${message.username}</span>
+      <span class="msgText">: ${message.text}</span>
+      <span class="createdAt">: ${message.createdAt}</span>
+      <span class="roomName">: Room: ${message.roomname}</span>
+    </div>`
     );
 };
 
 app.renderRoom = function(roomName) {
   // consider using .attr() to add value attribute
   $('#roomSelect').append('<option value="' + roomName + '">' + roomName + '</option>');
+};
+
+app.handleUsernameClick = function (event) {
+  var friend = event.target.textContent;
+  if (!app.friends[friend]) {
+    app.friends[friend] = true;
+    $('.' + friend).css('font-weight', 'Bold');
+    $('#friendSelect').append(`<option value="${friend}">${friend}</option>`);
+  } else {
+    app.friends[friend] = false;
+    $('.' + friend).css('font-weight', 'Normal');
+    // $('#friendSelect').
+  }
 };
 
 $(document).ready(app.init);
